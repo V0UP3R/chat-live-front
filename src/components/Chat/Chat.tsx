@@ -1,64 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import { Socket } from 'socket.io-client';
+import React, { useState, useEffect, useRef } from 'react';
 
-const Chat = () => {
-    const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState<string[]>([]);
-    const [socket, setSocket] = useState<Socket | null>(null);
+interface ChatRoomProps {
+    roomName: string;
+}
 
-  useEffect(() => {
+const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
+    const [userName, setUserName] = useState<string>('');
+    const [message, setMessage] = useState<string>('');
+    const [chatLog, setChatLog] = useState<string[]>([]);
+    const chatSocket = useRef<WebSocket | null>(null);
 
-    const newSocket = io('http://127.0.0.1:8000/ws/chat/sala/', { transports: ['websocket'] });
+    useEffect(() => {
+        const url = `ws://10.29.8.83:8000/ws/chat/${roomName}/`;
+        console.log(url);
+        chatSocket.current = new WebSocket(url);
 
-    newSocket.on('connect', () => {
-      console.log('Conectado ao servidor WebSocket');
-      setSocket(newSocket); // Definindo o socket após a conexão bem-sucedida
-    });
+        chatSocket.current.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            setChatLog((prevChatLog) => [...prevChatLog, data.message]);
+        };
 
-    newSocket.on('chat_message', (newMessage) => {
-      setMessages(prevMessages => [...prevMessages, newMessage]);
-    });
+        chatSocket.current.onclose = (e) => {
+            console.error('Chat socket closed unexpectedly');
+        };
 
-    return () => {
-      if (socket) {
-        socket.disconnect();
-      }
+        return () => {
+            chatSocket.current?.close();
+        };
+    }, [roomName]);
+
+    const handleSendMessage = () => {
+        if (chatSocket.current && message.trim()) {
+            chatSocket.current.send(JSON.stringify({
+                'message': message
+            }));
+            setMessage('');
+        }
     };
-  }, [socket]);
 
-  const sendMessage = () => {
-    if (socket && message.trim() !== '') { // Verificando se o socket é válido
-      socket.emit('chat_message', message);
-      setMessage('');
-    }
-  };
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSendMessage();
+        }
+    };
 
-  const handleKeyPress = (event:any) => {
-    if (event.key === 'Enter') {
-      sendMessage();
-    }
-  };
-
-  return (
-    <div>
-      <div className="messages-container">
-        {messages.map((msg, index) => (
-          <div key={index} className="message">{msg}</div>
-        ))}
-      </div>
-      <div className="input-container">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Digite sua mensagem..."
-        />
-        <button onClick={sendMessage}>Enviar</button>
-      </div>
-    </div>
-  );
+    return (
+        <div>
+            <input
+                id="user-name"
+                type="text"
+                size={100}
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Enter your name"
+            />
+            <br />
+            <textarea
+                id="chat-log"
+                cols={100}
+                rows={20}
+                value={chatLog.join('\n')}
+                readOnly
+            />
+            <br />
+            <input
+                id="chat-message-input"
+                type="text"
+                size={100}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyUp={handleKeyPress}
+                placeholder="Type your message here"
+            />
+            <br />
+            <input
+                id="chat-message-submit"
+                type="button"
+                value="Send"
+                onClick={handleSendMessage}
+            />
+        </div>
+    );
 };
 
-export default Chat;
+export default ChatRoom;
