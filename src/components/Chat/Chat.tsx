@@ -74,6 +74,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
                 onKeyUp={handleKeyPress}
                 className='p-4 bg-slate-800 rounded-3xl text-white border border-solid border-black border-opacity-45'
                 placeholder="Type your message here"
+                maxLength={75}
             />
             <br />
             <input
