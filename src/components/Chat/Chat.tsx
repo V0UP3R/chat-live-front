@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+
 interface ChatRoomProps {
     roomName: string;
 }
@@ -45,15 +46,15 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
     };
 
     return (
-        <div>
-            <input
+        <div id='dashboard' className='h-screen w-screen p-12 flex flex-col items-center justify-center border border-solid border-black border-opacity-45'>
+            {/* <input
                 id="user-name"
                 type="text"
                 size={100}
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 placeholder="Enter your name"
-            />
+            /> */}
             <br />
             <textarea
                 id="chat-log"
@@ -61,6 +62,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
                 rows={20}
                 value={chatLog.join('\n')}
                 readOnly
+                className='rounded-3xl p-6 text-lg'
             />
             <br />
             <input
@@ -70,6 +72,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyUp={handleKeyPress}
+                className='p-4 bg-slate-800 rounded-3xl text-white border border-solid border-black border-opacity-45'
                 placeholder="Type your message here"
             />
             <br />
@@ -78,6 +81,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
                 type="button"
                 value="Send"
                 onClick={handleSendMessage}
+                className='bg-green-900 w-60 h-20'
             />
         </div>
     );
