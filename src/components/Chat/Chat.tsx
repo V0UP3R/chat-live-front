@@ -1,91 +1,84 @@
-import React, { useState, useEffect, useRef } from 'react';
-
+import { Button, Input, Textarea } from "@nextui-org/react";
+import { useSession } from "next-auth/react";
+import React, { useState, useEffect, useRef } from "react";
+import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
 
 interface ChatRoomProps {
-    roomName: string;
+  roomName: string;
 }
 
 const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
-    const [userName, setUserName] = useState<string>('');
-    const [message, setMessage] = useState<string>('');
-    const [chatLog, setChatLog] = useState<string[]>([]);
-    const chatSocket = useRef<WebSocket | null>(null);
+  const [userName, setUserName] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [chatLog, setChatLog] = useState<string[]>([]);
+  const chatSocket = useRef<WebSocket | null>(null);
+  const {data:session} = useSession();
 
-    useEffect(() => {
-        const url = `ws://10.29.8.83:8000/ws/chat/${roomName}/`;
-        console.log(url);
-        chatSocket.current = new WebSocket(url);
+  useEffect(() => {
+    const url = `ws://192.168.0.60:8000/ws/chat/${roomName}/`;
+    console.log(url);
+    chatSocket.current = new WebSocket(url);
 
-        chatSocket.current.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            setChatLog((prevChatLog) => [...prevChatLog, data.message]);
-        };
-
-        chatSocket.current.onclose = (e) => {
-            console.error('Chat socket closed unexpectedly');
-        };
-
-        return () => {
-            chatSocket.current?.close();
-        };
-    }, [roomName]);
-
-    const handleSendMessage = () => {
-        if (chatSocket.current && message.trim()) {
-            chatSocket.current.send(JSON.stringify({
-                'message': message
-            }));
-            setMessage('');
-        }
+    chatSocket.current.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      setChatLog((prevChatLog) => [...prevChatLog, data.message]);
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            handleSendMessage();
-        }
+    chatSocket.current.onclose = (e) => {
+      console.error("Chat socket closed unexpectedly");
     };
 
-    return (
-        <div id='dashboard' className='h-screen w-screen p-12 flex flex-col items-center justify-center border border-solid border-black border-opacity-45'>
-            {/* <input
-                id="user-name"
-                type="text"
-                size={100}
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Enter your name"
-            /> */}
-            <br />
-            <textarea
-                id="chat-log"
-                cols={100}
-                rows={20}
-                value={chatLog.join('\n')}
-                readOnly
-                className='rounded-3xl p-6 text-lg'
-            />
-            <br />
-            <input
-                id="chat-message-input"
-                type="text"
-                size={100}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyUp={handleKeyPress}
-                className='p-4 bg-slate-800 rounded-3xl text-white border border-solid border-black border-opacity-45'
-                placeholder="Type your message here"
-                maxLength={75}
-            />
-            <br />
-            <input
-                id="chat-message-submit"
-                type="button"
-                value="Send"
-                onClick={handleSendMessage}
-                className='bg-green-900 w-60 h-20'
-            />
-        </div>
-    );
+    return () => {
+      chatSocket.current?.close();
+    };
+  }, [roomName]);
+
+  const handleSendMessage = () => {
+    if (chatSocket.current && message.trim()) {
+      chatSocket.current.send(
+        JSON.stringify({
+          message: session?.user?.name + ': ' + message,
+        })
+      );
+      setMessage("");
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+    }
+  };
+
+  return (
+    <div className="bg-blue-900 h-screen w-screen p-12 flex gap-6 flex-col items-center justify-end">
+      <textarea
+        id="chat-log"
+        value={chatLog.join("\n")}
+        readOnly
+        className="rounded-3xl h-full w-full p-6 text-lg"
+      />
+      <div className="flex w-full items-center">
+        <input
+          id="chat-message-input"
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyUp={handleKeyPress}
+          placeholder="Type your message here"
+          maxLength={75}
+          className="w-[80%] h-10 rounded-tl-3xl rounded-bl-3xl p-4"
+        />
+        <button
+          id="chat-message-submit"
+          type="button"
+          value="Send"
+          onClick={handleSendMessage}
+          className="bg-green-800 w-[20%] items-center justify-center text-white flex h-10 rounded-tr-3xl rounded-br-3xl"
+        ><MdOutlineKeyboardDoubleArrowRight className="w-6 h-6" /></button> 
+      </div>
+    </div>
+  );
 };
 
 export default ChatRoom;
