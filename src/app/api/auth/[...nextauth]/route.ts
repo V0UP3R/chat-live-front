@@ -11,22 +11,48 @@ const authOptions:NextAuthOptions = {
         password:{ label: "Password", type: "password"}
       },
       async authorize(credentials){
-        const user = {
-          id: '1',
-          email: 'user@email.com',
-          password: '123',
-          name: 'Thiago',
-          role: 'admin'
+        
+        const objData = {username:credentials?.email, password:credentials?.password} 
+
+        const res = await fetch(`${process.env.URL_SERVER}/api/token/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(objData)
+        });
+
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        
+        const tokenData = await res.json();
+
+        if (!tokenData || !tokenData.access) {
+          throw new Error("Invalid token data");
         }
 
-        const isValidEmail = user.email === credentials?.email
-        const isValidPassword = user.password === credentials?.password
+        const userRes = await fetch(`${process.env.URL_SERVER}/user/${credentials?.email}/`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${tokenData.access}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-        if (!isValidEmail || !isValidPassword) {
-          return null
+        if (!userRes.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        let user = await userRes.json();
+
+        if (user) {
+          user.name = user.username
+          return user;
+        } else {
+          return null;
         }
 
-        return user
+
       }
     })
   ],

@@ -53,9 +53,9 @@ export default function SignInPage() {
         <div className='flex flex-col'>
           <div className='flex flex-col w-full gap-1 mb-6'>
             <Input
-              label="E-mail"
-              type="email"
-              name="email"
+              label="User"
+              type="text"
+              name="user"
               variant="bordered"
               onChange={(e) => setEmail(e.target.value)}
               className="w-full"

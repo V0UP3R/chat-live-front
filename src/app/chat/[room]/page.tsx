@@ -13,7 +13,7 @@ export default function Page({ params }: { params: { room: string } }) {
     return <div>Loading...</div>;
   }
 
-  if(session?.user?.email) {
+  if(session?.user) {
     return <ChatRoom roomName={params.room} />;
   } else {
     <>ERRRRORRR</>
