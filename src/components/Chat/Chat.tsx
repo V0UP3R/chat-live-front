@@ -52,6 +52,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
 
   return (
     <div className="bg-blue-900 h-screen w-screen p-12 flex gap-6 flex-col items-center justify-end">
+      <h1 className="text-3xl text-white">Sala {roomName}</h1>
       <textarea
         id="chat-log"
         value={chatLog.join("\n")}

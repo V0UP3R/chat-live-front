@@ -10,8 +10,21 @@ export default function Page() {
   const [room, setRoom] = useState("");
   const { data: session } = useSession();
   const [enter, setEnter] = useState(false);
+  const [activeRooms, setActiveRooms] = useState([]);
 
-  useEffect(() =>{
+  useEffect(() => {
+    const fetchActiveRooms = async () => {
+      try {
+        const response = await fetch('/active_rooms/');
+        const data = await response.json();
+        setActiveRooms(data.rooms);
+      } catch (error) {
+        console.error('Erro ao buscar salas ativas:', error);
+      }
+    };
+
+    fetchActiveRooms();
+
     const websocketURL = 'ws://192.168.0.60:8000/ws/active_rooms/';
     const websocket = new WebSocket(websocketURL);
 
@@ -23,6 +36,7 @@ export default function Page() {
       const data = JSON.parse(event.data);
       const activeRooms = data.rooms;
       console.log('Salas ativas:', activeRooms);
+      setActiveRooms(activeRooms);
     };
 
     websocket.onerror = (error) => {
@@ -32,10 +46,19 @@ export default function Page() {
     websocket.onclose = () => {
       console.log('Conexão WebSocket fechada.');
     };
-  },[])
 
-  const handleRoomChange = (e: any) => {
+    return () => {
+      websocket.close(); // Fecha a conexão WebSocket ao desmontar o componente
+    };
+  }, []);
+
+  const handleRoomChange = (e:any) => {
     setRoom(e.target.value);
+  };
+
+  const roomNavigate = (roomName:string) => {
+    setRoom(roomName);
+    setEnter(true);
   };
 
   const handleCreateRoom = () => {
@@ -60,6 +83,16 @@ export default function Page() {
           <Button className="h-10" onClick={handleCreateRoom}>
             Criar
           </Button>
+        </div>
+        <div className="mt-4">
+          <h2 className="text-white mb-2">Salas Ativas:</h2>
+          <ul>
+            {activeRooms.map((roomName, index) => (
+              <li key={index}>
+                <Button onClick={() => roomNavigate(roomName)}>{roomName}</Button>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     );
