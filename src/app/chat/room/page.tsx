@@ -15,7 +15,7 @@ export default function Page() {
   useEffect(() => {
     const fetchActiveRooms = async () => {
       try {
-        const response = await fetch('/active_rooms/');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_NEXTURL_SERVER}active_rooms/`);
         const data = await response.json();
         setActiveRooms(data.rooms);
       } catch (error) {
@@ -25,7 +25,7 @@ export default function Page() {
 
     fetchActiveRooms();
 
-    const websocketURL = 'ws://192.168.0.60:8000/ws/active_rooms/';
+    const websocketURL = `ws://${process.env.NEXT_PUBLIC_NEXTURL_WS}ws/active_rooms/`;
     const websocket = new WebSocket(websocketURL);
 
     websocket.onopen = () => {

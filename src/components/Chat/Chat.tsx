@@ -15,7 +15,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
   const {data:session} = useSession();
 
   useEffect(() => {
-    const url = `ws://192.168.0.60:8000/ws/chat/${roomName}/`;
+    const url = `ws://${process.env.NEXT_PUBLIC_NEXTURL_WS}ws/chat/${roomName}/`;
     console.log(url);
     chatSocket.current = new WebSocket(url);
 

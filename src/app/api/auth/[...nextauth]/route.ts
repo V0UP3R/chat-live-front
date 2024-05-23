@@ -14,7 +14,7 @@ const authOptions:NextAuthOptions = {
         
         const objData = {username:credentials?.email, password:credentials?.password} 
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_NEXTURL_SERVER}/api/token/`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_NEXTURL_SERVER}api/token/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -32,7 +32,7 @@ const authOptions:NextAuthOptions = {
           throw new Error("Invalid token data");
         }
 
-        const userRes = await fetch(`${process.env.NEXT_PUBLIC_NEXTURL_SERVER}/user/${credentials?.email}/`, {
+        const userRes = await fetch(`${process.env.NEXT_PUBLIC_NEXTURL_SERVER}user/${credentials?.email}/`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${tokenData.access}`,

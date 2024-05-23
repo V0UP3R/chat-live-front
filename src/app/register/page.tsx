@@ -24,7 +24,7 @@ export default function SignInPage() {
     e.preventDefault()
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_NEXTURL_SERVER}/register/`,{
+      const response = await fetch(`${process.env.NEXT_PUBLIC_NEXTURL_SERVER}register/`,{
         method: "POST",
         headers: {
           "Content-Type": "application/json",
