@@ -34,7 +34,7 @@ export default function SignInPage() {
 
       if (!response?.error) {
         router.refresh()
-        router.push('/chat/lobby')
+        router.push('/chat/room')
       } else {
         setError('Email ou senha inválidos')
       }
