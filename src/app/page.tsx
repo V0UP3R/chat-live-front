@@ -88,7 +88,7 @@ export default function SignInPage() {
                 base:["bg-white", "rounded-xl"]
               }}
             />
-            <p className="text-[0.7rem]">Não possui conta?</p><Link className="text-[0.7rem] underline" href={'/register'}>Cadastre-se</Link>
+            <p className="text-[0.7rem] text-white md:text-black">Não possui conta?</p><Link className="text-white md:text-black text-[0.7rem] underline" href={'/register'}>Cadastre-se</Link>
           </div>
           {error && <span className="text-red-400 text-sm block mt-2">{error}</span>}
           <Button

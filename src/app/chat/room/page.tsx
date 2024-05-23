@@ -67,10 +67,10 @@ export default function Page() {
 
   if (session?.user && room !== "" && enter) {
     return <ChatRoom roomName={room} />;
-  } else {
+  } else if(session?.user) {
     return (
       <div className="bg-blue-800 w-screen h-screen p-14">
-        <h1 className="uppercase text-4xl mb-8">Chat</h1>
+        <h1 className="uppercase text-4xl mb-8 text-white font-semibold">Chat</h1>
         <div className="flex max-w-3xl gap-3">
           <Input
             className="h-10"
@@ -89,12 +89,14 @@ export default function Page() {
           <ul>
             {activeRooms.map((roomName, index) => (
               <li key={index}>
-                <Button onClick={() => roomNavigate(roomName)}>{roomName}</Button>
+                <Button className="my-4 w-56" onClick={() => roomNavigate(roomName)}>{roomName}</Button>
               </li>
             ))}
           </ul>
         </div>
       </div>
     );
+  } else {
+    router.push('/')
   }
 }
