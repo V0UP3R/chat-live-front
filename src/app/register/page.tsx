@@ -8,7 +8,7 @@ import Image from 'next/image'
 import { FaEye } from "react-icons/fa"
 import { IoMdEyeOff } from "react-icons/io"
 import {NextUIProvider} from "@nextui-org/react";
-import Link from "next/link"
+import { json } from "stream/consumers"
 
 export default function SignInPage() {
   const router = useRouter()
@@ -20,23 +20,31 @@ export default function SignInPage() {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
 
     try {
-      const response = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
+      const response = await fetch(`${process.env.NEXT_PUBLIC_NEXTURL_SERVER}/register/`,{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          "username": email,
+          "password": password,
+          "userprofile": {
+            "is_deleted": false
+          }
+        })
       })
 
       console.log('[LOGIN_RESPONSE]: ', response)
 
-      if (!response?.error) {
+      if (response?.ok) {
         router.refresh()
-        router.push('/chat/lobby')
+        router.push('/')
       } else {
-        setError('Email ou senha inválidos')
+        setError('Não foi possivel registrar!')
       }
     } catch (error) {
       console.log('[LOGIN_ERROR]: ', error)
@@ -44,13 +52,12 @@ export default function SignInPage() {
   }
 
   return (
-    <NextUIProvider>
     <div className='w-full h-screen flex items-center justify-center bg-blue-900'>
-      <form className='p-10 rounded-lg w-96 md:bg-gray-100 flex flex-col items-center md:shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)]' onSubmit={handleLogin}>
+      <form className='p-10 rounded-lg w-96 md:bg-gray-100 flex flex-col items-center md:shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)]' onSubmit={handleRegister}>
         <div className="w-full flex items-center justify-center">
         </div>
-        <h1 className='text-3xl font-bold mb-4 text-white md:text-gray-700'>Login</h1>
-        <p className='text-sm text-white md:text-slate-700 mb-10'>Faça login para continuar</p>
+        <h1 className='text-3xl font-bold mb-4 text-white md:text-gray-700'>Cadastre-se</h1>
+        <p className='text-sm text-white md:text-slate-700 mb-10'>Faça seu cadastro para continuar</p>
         <div className='flex flex-col'>
           <div className='flex flex-col w-full gap-1 mb-6'>
             <Input
@@ -88,18 +95,16 @@ export default function SignInPage() {
                 base:["bg-white", "rounded-xl"]
               }}
             />
-            <p className="text-[0.7rem]">Não possui conta?</p><Link className="text-[0.7rem] underline" href={'/register'}>Cadastre-se</Link>
           </div>
           {error && <span className="text-red-400 text-sm block mt-2">{error}</span>}
           <Button
             type='submit'
             className='mt-10 bg-gray-700 text-slate-50 p-3 rounded'
           >
-            Entrar
+            Cadastrar
           </Button>
         </div>
       </form>
     </div>
-    </NextUIProvider>
   )
 }

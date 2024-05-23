@@ -15,6 +15,29 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomName }) => {
   const {data:session} = useSession();
 
   useEffect(() => {
+    const websocketURL = 'ws://192.168.0.60:8000/ws/active_rooms/';
+    const websocket = new WebSocket(websocketURL);
+
+    websocket.onopen = () => {
+      console.log('Conectado ao servidor WebSocket para obter salas ativas.');
+    };
+
+    websocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const activeRooms = data.rooms;
+      console.log('Salas ativas:', activeRooms);
+      // Atualize sua interface do usuário com as salas ativas, por exemplo:
+      // updateActiveRooms(activeRooms);
+    };
+
+    websocket.onerror = (error) => {
+      console.error('Erro de WebSocket:', error);
+    };
+
+    websocket.onclose = () => {
+      console.log('Conexão WebSocket fechada.');
+    };
+    
     const url = `ws://192.168.0.60:8000/ws/chat/${roomName}/`;
     console.log(url);
     chatSocket.current = new WebSocket(url);
